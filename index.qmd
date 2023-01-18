@@ -310,7 +310,7 @@ And implementing good data management practices like double entering any paper d
 
 Anything Else?
 
-![](img/question.JPG)
+![](img/question.jpg)
 :::
 :::
 
