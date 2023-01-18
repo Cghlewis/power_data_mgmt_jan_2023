@@ -6,7 +6,7 @@ format:
     theme: moon
 ---
 
-# About the group! (n=31)
+# About the group! (n=32)
 
 ```{r}
 
@@ -245,7 +245,7 @@ Implementing data management workflows helps to minimize those mistakes
 
 :::
 
-# Data Management
+# Data Management {.smaller}
 
 :::: {.columns}
 
@@ -261,6 +261,12 @@ Implementing data management workflows helps to minimize those mistakes
 ![](img/retraction.PNG)
 
 :::
+:::
+
+::: {.footnote}
+
+[Science Direct](https://www.sciencedirect.com/science/article/pii/S0213911118300724?via%3Dihub)
+
 :::
 
 ::: {.notes}
@@ -376,7 +382,7 @@ I know some of you have seen this before, but for those of you that are new, thi
 
 1. Monthly meetups (Second Wednesday of every month from 11am-12pm CST)
   - February 8th
-  - March 9th
+  - March 8th
   - April 12th
   - May 10th
 2. Bimonthly presentations from group members
@@ -385,14 +391,4 @@ I know some of you have seen this before, but for those of you that are new, thi
 4. Center for Open Science [Unconference: Open Scholarship Practices in Education Research](https://www.cos.io/unconference), March 9th and 10th. Will have some presentations on data management. 
 
 # Introductions {background-opacity=".2" background-image="img/greeting.jpg"}
-
-::: {.notes}
-
-Maybe just say your background and why you joined this group?
-
-I'm Crystal. I was a research data manager at the University of Missouri for 8 years, managing data mostly for IES funded randomized controlled trial studies. For the last year I have been working for myself, doing freelance consulting around data management with education researchers at various institutions and I love it. It's a dream job for me. I'm also working on a book called Data Management in Large-Scale Education Research Studies. And side note if anyone is interested in reading some chapters and providing feedback, please let me know!
-
-And I started this group because for most of my career I have felt like I am just winging it, learning best practices through trial and error. And this group has been a great way to learn from others, rather than solely through my own experiences.
-
-:::
 
