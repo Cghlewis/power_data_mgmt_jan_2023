@@ -1,0 +1,402 @@
+---
+title: "POWER: Issues in Data Management in Education Research Hub"
+date: "01-18-2023 (updated: `r format(Sys.time(), '%m/%d/%Y')`)"
+format:
+  revealjs: 
+    theme: moon
+---
+
+# About the group! (n=31)
+
+```{r}
+
+#|include: false
+
+library(tidyverse)
+library(stringr)
+
+```
+
+```{r}
+
+#|label: read-data
+#|include: false
+#|echo: false
+
+#data <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/19PNxitF6glqZ4uGrJY-UI5NCPrYr3nO_Cvo8CDkNlxE/edit?usp=sharing")
+
+#saveRDS(data,"google_data.rds")
+
+data <- readRDS("google_data.rds")
+
+# Filter out test data and set variable names
+
+survey <- data %>% 
+  dplyr::filter(`What is your name?` != "Test") %>%
+  select(-c(Timestamp, `What is your preferred email?`:`Are you interested in joining this hub?`, `Is there anyone you think would be interested in joining this group? If yes, please provide their name and email. If I haven't already invited them, I will add them to the list.`)) %>%
+  set_names("name", "interest", "role", "learn", "topics",
+            "presenting", "present_topic", "resources",
+            "meet")
+
+```
+
+
+```{r}
+
+#|label: role
+#|echo: false
+#|fig.align: center
+
+survey %>%
+  select(name, role) %>%
+  separate_rows(role, sep = ",") %>%
+  mutate(role = str_trim(role, side = "both")) %>%
+  filter(!(str_detect(role, "project coordinator|Assistant|access"))) %>%
+    mutate(role = case_when(
+      role == "Principal Investigator/Co-PI" ~ "PI/Co-PI",
+      str_detect(role, "New") ~ "Data Manager",
+      str_detect(role, "Postdoc|post-doc") ~ "Postdoc",
+      TRUE ~ role
+  )) %>%
+  group_by(role) %>%
+  summarize(count = n()) %>%
+  ggplot(aes (x = reorder(role, count), y = count)) +
+  geom_bar(stat = "identity", color = "#002b36", 
+           fill = "#fc8458") +
+  labs(x = "Role \n ", y = "\n Count") +
+  coord_flip() +
+  scale_y_continuous(breaks= 0:13) +
+  ggthemes::theme_tufte(base_size = 17)
+
+
+
+```
+
+::: {.notes}
+Our group has recently grown again. We currently have 31 members on our listserv.
+Our members take on many different roles. Many of us take on more than one role within our teams.
+:::
+
+# How did you learn data management? {.smaller}
+
+```{r, echo = FALSE}
+
+#| label: learn
+
+ survey %>%
+  select(name, learn) %>%
+  filter(learn != "NA") %>%
+  separate_rows(learn, sep = ",") %>%
+  mutate(learn = str_trim(learn, side = "left")) %>%
+  filter(learn != "etc)") %>%
+  mutate(learn_new = case_when(
+                           str_detect(learn, "Self-taught") ~ "Self-taught",
+                           str_detect(learn, "Colleagues") ~ "Colleagues",
+                           str_detect(learn, "online|Online|workshops") ~ "Workshops and Online courses",
+                           str_detect(learn, "Made") ~ "Made it up",
+                           str_detect(learn, "post") ~ "Post-doc",
+                           str_detect(learn, "never learned") ~ "Never learned",
+                           str_detect(learn, "podc") ~ "Podcasts",
+                           str_detect(learn, "coursework|undergraduate") ~ "Coursework",
+                           TRUE ~ learn
+                           )) %>%
+  group_by(learn_new) %>%
+  select(name, learn = learn_new) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  gt::gt()
+
+```
+
+::: {.notes}
+As we've seen before, we are learning data management in pretty non-traditional ways.
+
+And some of us never learned data management at all and are probably just winging it. That was how I operated for the first few years of my career.
+:::
+
+# Topics of interest {.smaller}
+
+```{r}
+
+#|label: topics
+#|echo:false
+
+survey %>%
+  select(name, topics) %>%
+  separate_rows(topics, sep = ",") %>%
+  separate_rows(topics, sep = ";") %>%
+  mutate(topics = str_trim(topics, side = "both")) %>%
+  filter(!topics %in% c("organizations", "opportunities for advancement", 
+                        "etc.)")) %>%
+  mutate(topics = case_when(
+    str_detect(topics, "Hack") ~ "Hackathon/Sharing",
+    str_detect(topics, "hiring") ~ "Writing DM job description",
+    str_detect(topics, "Careers") ~ "Careers in DM",
+    str_detect(topics, "Organizing your") ~ "Creating best practice guide",
+    str_detect(topics, "harmonization") ~ "Data merging/harmonizing",
+    str_detect(topics, "storage") ~ "Data storage/versioning",
+    str_detect(topics, "merging") ~ "Data merging/harmonizing",
+    str_detect(topics, "Developing") ~ "DM plans",
+    TRUE ~ topics
+  )) %>%
+  group_by(topics) %>%
+  summarize(count = n()) %>%
+  ggplot(aes (x = reorder(topics, count), y = count)) +
+  geom_bar(stat = "identity", color = "#002b36", 
+           fill = "#fc8458") +
+  labs(x = "Topic \n ", y = "\n Count") +
+  coord_flip() +
+  ggthemes::theme_tufte(base_size = 13) +
+  scale_y_continuous(breaks= 0:25) 
+
+
+```
+
+::: {.notes}
+Data cleaning and documentation are the largest topics of interest in our group and I think those are the 2 presentation topics I will try to focus on for this spring semester.
+
+Last spring we had Sara Hart present on Data Sharing which was super enlightening. And then last fall we had Rebekah Jacobs present on data collection and Gizem Solmaz presented on data sharing, specifically in the OSF repository. So we've had great coverage of topics so far.
+
+Next fall Kyle Hussman and Susan Hart are hoping to present on the data pipeline they have built, to move data from Qualtrics through cleaning in a streamlined way so I'm really excited for that.
+:::
+
+# Why care about data management? {.smaller}
+
+
+1\. It's required to maintain compliance
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+- Federal funders
+  - IES  
+  - NIJ  
+  - NIH  
+  - NSF  
+
+:::
+
+::: {.column width="50%"}
+
+- Journals
+  - PLOS ONE  
+- Institutional Review Board
+
+:::
+:::
+
+::: {.notes}
+
+I don't normally add this, but I thought it would be helpful to remind ourselves why we should all care about data management. How does data management impact our projects?
+
+So first, even if you don’t care much about data management, you should know that it is often required in order to maintain compliance.
+
+So for anyone on this call that is maybe new to federal funding, since 2013, most federal agencies that education researchers work with have required a data management plan as part of their funding application. A data management plan is a supplemental 2-5 page document, submitted with your grant application, and it contains details about how you plan to store, manage, and publicly share your research data products. So if you plan to fund your research study through federal grants, data management will be required.
+
+Some journals also require that authors submit data along with their publications (and this requirement to submit data means we need to make sure we have curated data that is easy to use and well documented).
+
+And last, if your study falls under the purview of the IRB, they are going to be monitoring your data management practices to make sure you are keeping data secure and maintaining participant confidentiality. If you are unaware of the IRB, it is an organization designated to review and monitor human participant research, and ensure that the welfare, rights, and privacy of research participants are maintained throughout the project.
+:::
+
+# Data Management {.smaller}
+
+2. Makes work reproducible
+
+- Replication crisis: 
+    - A [2016 study](https://www.nature.com/articles/533452a) found that across 1,500 researchers surveyed, more than 70% had tried and failed to reproduce another researcher’s study
+- Reproducible data has benefits:
+    - It allows others to learn from our work, collaborate with us, and increase impact
+    - It allows others to validate our results which strengthen evidence
+    
+::: {.notes}
+
+But managing our data helps us in many other ways. It helps make our work reproducible.
+
+So many of you have probably heard of the replication crisis. An example here is a…
+
+So in trying to combat this crisis, we should be trying to manage our data in a way that allows our findings to be replicable. Because reproducible data has many benefits…
+
+:::
+
+# Data Management {.smaller}
+
+3. Upholds research integrity
+
+- The Role of Human Fallibility in Psychological Research: A Survey of Mistakes in Data Management, Kovacs, Hoekstra & Ackzel
+
+::: {layout-ncol=2}
+
+![](img/serious_cause.PNG)
+
+![](img/serious_mistake.PNG)
+
+:::
+
+::: {.notes}
+
+In this study, authors surveyed 488 researchers who had published in a psychology journal between 2010 and 2018 and had them report on how often they believed they made data mgmt mistakes, what types of mistakes, causes, and the consequences
+
+So on the left here, we can see that a good chunk of mistakes are made because of poor project planning or management (which would include things like poor data management planning).
+
+And these mistakes are not to be taken lightly. Reported consequences of these mistakes ranged from time loss and frustration to financial loss and erroneous conclusion
+
+Implementing data management workflows helps to minimize those mistakes
+
+:::
+
+# Data Management
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+- There is an entire blog, [Retraction Watch](https://retractionwatch.com/), dedicated to monitoring scientific journal retractions
+
+- While there are varying reasons an article is retracted, unreliable data is a top reason for article retractions
+
+::: footer
+
+https://www.sciencedirect.com/science/article/pii/S0213911118300724?via%3Dihub
+  
+:::
+
+::: {.column width="50%"}
+
+![](img/retraction.PNG)
+:::
+:::
+
+::: {.notes}
+
+And continuing with research integrity….
+
+…
+
+And implementing good data management practices like double entering any paper data or doing data sanity checks to look for errors or having others reproduce our work, help you ensure that you aren’t using data that will later result in a retraction
+
+:::
+
+# Data Management
+
+4\. Keeps data secure  
+
+- Incidents where data is not stored properly can lead to:
+  - Lost or stolen data  
+  - Risk of data becoming corrupted or inaccessible   
+  - Risk of breaking confidentiality agreements  
+  
+# Data Management
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+5\. Makes your life easier
+
+- Facilitates the use of your data
+
+- Improves continuity
+
+- Increases efficiency
+
+- Reduces data curation debt
+
+:::
+
+::: {.column width="50%"}
+
+Anything Else?
+
+![](img/question.JPG)
+:::
+:::
+
+::: {.notes}
+
+Taking time to organize your files in a consistent way for instance, means not having to waste time searching around for the clean data file or guessing which version of your data to use
+
+When staff turnover or go on leave, you aren’t having to start from scratch to train them because you have all of your processes well documented
+
+If you document and automate tasks, it reduces duplication of efforts for any repeating tasks, especially those in longitudinal studies
+
+Data curation debt is the time and money spent on fixing data that was created with suboptimal data management practices. Taking the time to implement quality data management through the entire research study reduces that debt.
+
+Are there other benefits that others can think of that I didn't cover?
+
+:::
+
+# About this group {background-image="img/idea.jpg"}
+
+::: footer
+Photo by <a href="https://unsplash.com/@kellysikkema?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Kelly Sikkema</a> on <a href="https://unsplash.com/s/photos/idea?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
+:::
+
+::: {.notes}
+As we've seen, there is little to no formal training around data management in our fields, yet most of us are required to work with data, some times very large amounts of data. And many of us are just winging it without any real support system.
+
+And so I started this group as a place where we could share ideas with each other, ask questions and learn from each other to improve our work. And I think over the last year, this group has done a fairly good job at serving that purpose.
+
+I am always open to feedback about ways to improve our meetups, or feedback about topic or event ideas so please just reach out to me.
+:::
+
+# Meetups {.smaller}
+
+1\. Meetups - monthly
+
+- One hour a month, virtual, optional  
+- Running [meeting notes document](https://docs.google.com/document/d/11cDqbbNNdb6YzYPbUPDYJ4MgLXRQjpIy9n-Eo3OsdmA/edit)  
+  - Use this document to add topics of interest
+  
+2\. Member presentations - quarterly
+
+- One hour presentations on a topic that a member has expertise in and/or a topic of group interest  
+- Potential spring topics  
+  - Documentation  
+  - Data cleaning (bring a messy dataset and discuss how to clean it)  
+  
+::: {.notes}
+
+This group currently gathers in two different ways. Our monthly meetups and our member presentations.
+
+Our monthly meetups are virtual, run for one hour, and are totally optional (come when you can)
+We have this running meeting notes document where I not only document our monthly discussions but you can also add ideas for future meeting topics (such as a problem you've run into with one of your projects that you'd like to discuss with the group or a lesson you've learned and want to share with the group)
+
+Our member presentations are quarterly or every 2 months about
+They are also one hour, virtual and optional (although I hope everyone can come because they are really informational)
+As I mentioned before, the two topics I am hoping to find speakers on for this spring are documentation and data cleaning so I will keep you updated when I finalize those events
+
+:::
+
+# Data Management Life Cycle
+
+![](img\flow.PNG){fig-align="center"}
+
+::: {.notes}
+I know some of you have seen this before, but for those of you that are new, this is a workflow chart that I created as a way of communicating how data management really permeates the entire research life cycle. I think oftentimes when I say data management to people, their minds immediately go to code writing and data cleaning. How do you physically manage your data. But, as I think we are all aware of, data management should be integrated into almost every phase of your research project in order to have reliable, reproducible data outputs. And so this group is open to discuss any point along this life cycle. Wherever you see pain points we can talk about it.
+:::
+
+# Upcoming Events {.smaller}
+
+1. Monthly meetups (Second Wednesday of every month from 11am-12pm CST)
+  - February 8th
+  - March 9th
+  - April 12th
+  - May 10th
+2. Bimonthly presentations from group members
+    + Aiming to have first presentation late February
+3. Ongoing resource list can be found [here](https://docs.google.com/document/d/1Jx90Z1MA1bm9Ofgy04Kgl43DagL7_PJTSnmhBHNqtxA/edit?usp=sharing)
+4. Center for Open Science [Unconference: Open Scholarship Practices in Education Research](https://www.cos.io/unconference), March 9th and 10th. Will have some presentations on data management. 
+
+# Introductions {background-opacity=".2" background-image="img/greeting.jpg"}
+
+::: {.notes}
+
+Maybe just say your background and why you joined this group?
+
+I'm Crystal. I was a research data manager at the University of Missouri for 8 years, managing data mostly for IES funded randomized controlled trial studies. For the last year I have been working for myself, doing freelance consulting around data management with education researchers at various institutions and I love it. It's a dream job for me. I'm also working on a book called Data Management in Large-Scale Education Research Studies. And side note if anyone is interested in reading some chapters and providing feedback, please let me know!
+
+And I started this group because for most of my career I have felt like I am just winging it, learning best practices through trial and error. And this group has been a great way to learn from others, rather than solely through my own experiences.
+
+:::
+
