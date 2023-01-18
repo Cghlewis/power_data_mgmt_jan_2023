@@ -255,15 +255,11 @@ Implementing data management workflows helps to minimize those mistakes
 
 - While there are varying reasons an article is retracted, unreliable data is a top reason for article retractions
 
-::: footer
-
-https://www.sciencedirect.com/science/article/pii/S0213911118300724?via%3Dihub
-  
 :::
-
 ::: {.column width="50%"}
 
 ![](img/retraction.PNG)
+
 :::
 :::
 
