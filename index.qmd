@@ -227,9 +227,9 @@ So in trying to combat this crisis, we should be trying to manage our data in a 
 
 ::: {layout-ncol=2}
 
-![](img/serious_cause.PNG)
+![](img/serious_cause.png)
 
-![](img/serious_mistake.PNG)
+![](img/serious_mistake.png)
 
 :::
 
